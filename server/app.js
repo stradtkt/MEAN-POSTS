@@ -30,15 +30,19 @@ app.use((req, res, next) => {
     next();
 });
 
+
 app.post('/api/posts', (req, res, next) => {
     const post = new Post({
         title: req.body.title,
         content: req.body.content
     });
-    post.save();
-    res.status(201).json({
-        message: 'Post created successfully'
-    });
+    post.save()
+        .then(result => {
+            res.status(201).json({
+                message: 'Post created successfully',
+                postId: result._id
+            }); 
+        });
 });
 
 app.get('/api/posts', (req, res, next) => {
@@ -51,15 +55,14 @@ app.get('/api/posts', (req, res, next) => {
         });
 });
 
-app.use('/api/posts', (req, res, next) => {
-    const posts = [
-        {id: '123456789', title: 'First Server Side Post', content: 'This is coming from the server'},
-        {id: '123456780', title: 'Second Server Side Post', content: 'This is coming from the server'}
-    ];
-    res.status(200).json({
-        message: 'Posts fetched successfully!',
-        posts: posts
-    });
+app.delete('/api/posts/:id', (req, res, next) => {
+    Post.deleteOne({_id: req.params.id})
+        .then(result => {
+            console.log(result);
+            res.status(200).json({
+                message: 'Post Deleted'
+            });
+        });
 });
 
 module.exports = app;
